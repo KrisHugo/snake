@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇游戏</title>
+    <!-- 修改 .game-container 的樣式，使其能夠適應動態變化的畫布 -->
+    <style>
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            /* 改為垂直排列，遊戲畫布在上，UI在右側 */
+            align-items: center;
+            max-width: 100vw;
+            max-height: 100vh;
+            overflow: auto;
+            /* 如果畫布過大，允許滾動 */
+        }
+
+        .canvases-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        #gameCanvas {
+            border: 1px solid #fff;
+            display: block;
+        }
+
+        #uiCanvas {
+            display: block;
+            background-color: #111;
+            width: 150px;
+            border: 1px solid #fff;
+        }
+
+        #game-title {
+            color: white;
+            margin-bottom: 20px;
+        }
+        /* 新增：规则面板样式 */
+        #rulePanel {
+            width: 80%; /* 固定宽度，足够显示规则 */
+            background-color: #1a1a2e;
+            border: 2px solid #0f3460;
+            border-radius: 10px;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto; /* 如果内容很多，允许滚动 */
+            max-height: 80vh; /* 限制最大高度 */
+            display: block; /* 初始状态为显示，由JS控制 */
+        }
+        #rulePanel h2 {
+            color: #4cc9f0;
+            margin-top: 0;
+            text-align: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        #rulePanel ul {
+            padding-left: 20px;
+            line-height: 1.6;
+            color: #e0e1dd;
+        }
+        #rulePanel li {
+            margin-bottom: 10px;
+        }
+        #rulePanel .highlight {
+            color: #f72585;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <h1 class="game-title">貪吃蛇遊戲</h1>
+        <div class="canvases-wrapper">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <canvas id="uiCanvas" width="150" height="400"></canvas>
+        </div>
+        
+        <!-- 新增：规则面板 -->
+        <div id="rulePanel">
+            <h2>游戏规则与操作</h2>
+            <ul>
+                <li><strong>目标：</strong>控制贪吃蛇吃掉所有红色食物，通过每一个关卡。</li>
+                <li><strong>操作：</strong>使用键盘 <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> 方向键控制蛇的移动方向。</li>
+                <li><strong>禁忌：</strong>撞到墙壁或自己的身体会导致游戏结束。</li>
+                <li><strong>计分：</strong>每吃一个食物得1分。达到“目标分数”即可过关。</li>
+                <li><strong>关卡：</strong>
+                    <ul>
+                        <li>关卡越高，游戏场地<strong>越大</strong>。</li>
+                        <li>蛇的移动速度会<strong>加快</strong>。</li>
+                        <li>蛇身大小不变，始终清晰。</li>
+                    </ul>
+                </li>
+                <li><strong>高级技巧：</strong>游戏采用了<em>输入缓冲</em>机制，你可以提前输入转弯指令，操作会更流畅！</li>
+            </ul>
+            <div class="highlight">在主菜单中，按 [回车键] 开始游戏！</div>
+        </div>
+
+    </div>
+    <script src="snake.js"></script>
+</body>
+
+</html>

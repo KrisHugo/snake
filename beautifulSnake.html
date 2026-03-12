@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇 | 动态进化版</title>
+    <style>
+        /* === 全局主题与背景 === */
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c2e 0%, #1a1a3e 30%, #0d1b2a 70%);
+            color: #e0f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* === 主游戏容器 === */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            max-width: 900px; /* 调整最大宽度以适应新布局 */
+            width: 100%;
+        }
+
+        /* === 主标题 === */
+        .game-title {
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #4cc9f0, 0 0 20px rgba(76, 201, 240, 0.5);
+            background: linear-gradient(to right, #4cc9f0, #f72585);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .game-subtitle {
+            color: #a0a0d8;
+            text-align: center;
+            margin-top: -10px;
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* === 上层：游戏交互区域（画布+UI）=== */
+        .game-interaction-area {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* 顶部对齐 */
+            gap: 25px;
+            width: 100%;
+            flex-wrap: wrap; /* 允许在小屏幕上换行 */
+        }
+
+        /* === 游戏主画布容器 === */
+        .game-canvas-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .canvas-label {
+            color: #4cc9f0;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        #gameCanvas {
+            display: block;
+            border-radius: 8px;
+            border: 3px solid #2a2a5a;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            background-color: #050510;
+        }
+
+        /* === UI画布容器 === */
+        .ui-canvas-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .ui-label {
+            color: #4cc9f0;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        #uiCanvas {
+            display: block;
+            background-color: #111126;
+            width: 180px;
+            border-radius: 8px;
+            border: 3px solid #2a2a5a;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        /* === 下层：规则面板 === */
+        #rulePanel {
+            /* 移除固定宽度，使其与上层游戏区域同宽 */
+            width: 100%;
+            max-width: 800px; /* 设定一个最大宽度，避免过宽 */
+            background: rgba(20, 25, 50, 0.85);
+            border: 2px solid #3a3a6a;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 10, 30, 0.6);
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            margin-top: 20px; /* 与上层区域增加间隔 */
+        }
+        #rulePanel h2 {
+            color: #72efdd;
+            margin-top: 0;
+            text-align: center;
+            border-bottom: 1px solid #444477;
+            padding-bottom: 15px;
+            font-size: 1.8rem;
+        }
+        #rulePanel ul {
+            padding-left: 20px;
+            line-height: 1.7;
+            color: #ccd6f6;
+        }
+        #rulePanel li {
+            margin-bottom: 12px;
+        }
+        #rulePanel strong {
+            color: #72efdd;
+        }
+        #rulePanel kbd {
+            display: inline-block;
+            padding: 2px 8px;
+            margin: 0 2px;
+            font-size: 0.9em;
+            background: #2a2a5a;
+            border: 1px solid #4a4a8a;
+            border-radius: 4px;
+            box-shadow: 0 2px 0 #1a1a3a;
+        }
+        #rulePanel .highlight {
+            color: #f72585;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 25px;
+            padding: 12px;
+            background: rgba(247, 37, 133, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #f72585;
+            font-size: 1.1em;
+        }
+
+        /* === 响应式设计 === */
+        @media (max-width: 850px) {
+            .game-interaction-area {
+                flex-direction: column;
+                align-items: center;
+            }
+            /* 当垂直排列时，让两个画布容器等宽对齐 */
+            .game-canvas-container, .ui-canvas-container {
+                width: 100%;
+                align-items: center;
+            }
+            #uiCanvas {
+                width: 400px; /* 在垂直布局下，让UI画布与游戏画布同宽 */
+                max-width: 100%;
+            }
+        }
+        @media (max-width: 600px) {
+            .game-title {
+                font-size: 2.5rem;
+            }
+            #gameCanvas, #uiCanvas {
+                transform: scale(0.9);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <!-- 主标题区域 -->
+        <header>
+            <h1 class="game-title">贪吃蛇</h1>
+            <p class="game-subtitle">输入缓冲 | 动态画面 | 多关卡进阶</p>
+        </header>
+
+        <!-- 上层：游戏交互区域 -->
+        <div class="game-interaction-area">
+            <!-- 左侧：游戏主画布 -->
+            <div class="game-canvas-container">
+                <div class="canvas-label">游戏主区域</div>
+                <canvas id="gameCanvas" width="400" height="400"></canvas>
+            </div>
+
+            <!-- 右侧：UI画布 -->
+            <div class="ui-canvas-container">
+                <div class="ui-label">游戏状态</div>
+                <canvas id="uiCanvas" width="150" height="400"></canvas>
+            </div>
+        </div>
+
+        <!-- 下层：规则面板 -->
+        <div id="rulePanel">
+            <h2>🎮 规则与操作</h2>
+            <ul>
+                <li><strong>目标：</strong>控制贪吃蛇吃掉所有红色食物，通过每一个关卡。</li>
+                <li><strong>操作：</strong>使用键盘 <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> 方向键控制蛇的移动方向。</li>
+                <li><strong>禁忌：</strong>撞到墙壁或自己的身体会导致游戏结束。</li>
+                <li><strong>计分：</strong>每吃一个食物得1分。达到“目标分数”即可过关。</li>
+                <li><strong>关卡：</strong>
+                    <ul>
+                        <li>关卡越高，游戏场地<strong>越大</strong>。</li>
+                        <li>蛇的移动速度会<strong>加快</strong>。</li>
+                        <li>蛇身大小不变，始终清晰。</li>
+                    </ul>
+                </li>
+                <li><strong>高级技巧：</strong>游戏采用了<em>输入缓冲</em>机制，你可以提前输入转弯指令，操作会更流畅！</li>
+            </ul>
+            <div class="highlight">在主菜单中，按 [回车键] 开始游戏！</div>
+        </div>
+    </div>
+
+    <script src="snake.js"></script>
+</body>
+</html>
